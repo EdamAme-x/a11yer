@@ -7,6 +7,22 @@
 - feat: initial release of a11yer
 
 ### Fixes
+- fix: initial scan fully sync, E2E waits for DOM not timeout
+- fix: E2E workers=4, StrictMode, alt Title Case, batched tests
+- fix: CI peer deps + Playwright cache
+
+### Other
+- perf: batch E2E tests — 4 parallel tests instead of 17 serial
+- perf: parallelize E2E — 3 browser jobs, fullyParallel, viewport tests
+
+
+## Unreleased (2026-03-30)
+
+### Features
+- feat: alt text supports all separator types
+- feat: initial release of a11yer
+
+### Fixes
 - fix: E2E workers=4, StrictMode, alt Title Case, batched tests
 - fix: CI peer deps + Playwright cache
 

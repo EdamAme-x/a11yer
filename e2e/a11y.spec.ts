@@ -4,9 +4,8 @@ import { expect, test } from "@playwright/test";
 // Wait for a11yer to finish patching by checking for its style element
 async function waitForA11yer(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.waitForSelector("#a11yer-styles", { timeout: 5000 });
-  // Also wait for deferred patches (skip link target, etc.)
-  await page.waitForSelector("[data-a11yer-skip-target]", { timeout: 5000 });
+  // <style> is not visible — use state: "attached"
+  await page.waitForSelector("#a11yer-styles", { state: "attached", timeout: 10000 });
 }
 
 test("structural + images + forms", async ({ page }) => {
