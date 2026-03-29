@@ -1,0 +1,3 @@
+#!/bin/bash
+# Auto-update CHANGELOG.md before pushing
+bash scripts/update-changelog.sh

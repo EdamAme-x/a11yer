@@ -1,0 +1,27 @@
+name: Feature Request
+description: Suggest a new auto-fix or WCAG coverage improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What WCAG criterion or a11y pattern should be covered?
+      description: Include the WCAG SC number if applicable (e.g., 2.4.7 Focus Visible).
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed auto-fix behavior
+      description: How should a11yer automatically handle this?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you considered.
+    validations:
+      required: false

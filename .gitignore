@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment
+.env
+.env.*
+
+# Claude Code
+CLAUDE.md
+.agents
+
+# IDE
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage
+
+# Logs
+*.log
+
+# E2E
+e2e/.build
+test-results
+playwright-report

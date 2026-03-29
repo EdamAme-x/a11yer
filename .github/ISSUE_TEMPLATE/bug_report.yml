@@ -1,0 +1,65 @@
+name: Bug Report
+description: Report an a11y patch that behaves incorrectly
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the incorrect behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Minimal code to reproduce the issue.
+      render: tsx
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: a11yer version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      options:
+        - Next.js (App Router)
+        - Next.js (Pages Router)
+        - Remix
+        - Vite + React
+        - Create React App
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component-library
+    attributes:
+      label: Component library (if applicable)
+      options:
+        - None
+        - Radix UI
+        - MUI
+        - Headless UI
+        - react-aria
+        - shadcn/ui
+        - Chakra UI
+        - Other
+    validations:
+      required: false
