@@ -72,9 +72,11 @@ function isLikelyDecorative(img: Element): boolean {
     if (!text) return false; // icon-only — informative
   }
 
-  // Tracking pixels
-  const htmlImg = img as HTMLImageElement;
-  if (htmlImg.width <= 1 && htmlImg.height <= 1) return true;
+  // Tracking pixels — only check explicit HTML attributes, not computed size
+  // (computed size may be 0 before image loads)
+  const wAttr = img.getAttribute("width");
+  const hAttr = img.getAttribute("height");
+  if (wAttr && hAttr && parseInt(wAttr) <= 1 && parseInt(hAttr) <= 1) return true;
 
   // Explicitly decorative
   const role = img.getAttribute("role");

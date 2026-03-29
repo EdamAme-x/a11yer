@@ -1,11 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-// Wait for a11yer to finish patching by checking for its style element
 async function waitForA11yer(page: import("@playwright/test").Page) {
   await page.goto("/");
-  // <style> is not visible — use state: "attached"
+  // Wait for a11yer to mount and run patches
   await page.waitForSelector("#a11yer-styles", { state: "attached", timeout: 10000 });
+  // Wait for DOM patches to complete (keyboard patch adds tabindex to div[role=button])
+  await page.waitForSelector('[role="button"][tabindex]', { state: "attached", timeout: 10000 });
 }
 
 test("structural + images + forms", async ({ page }) => {
@@ -47,7 +48,8 @@ test("tables + keyboard + composites + CSS", async ({ page }) => {
 test("responsive viewports", async ({ page }) => {
   for (const [w, h] of [[375, 812], [768, 1024], [1280, 720]]) {
     await page.setViewportSize({ width: w, height: h });
-    await waitForA11yer(page);
+    await page.goto("/");
+    await page.waitForSelector("#a11yer-styles", { state: "attached", timeout: 10000 });
     expect(await page.getAttribute("html", "lang")).toBeTruthy();
     await expect(page.locator(".a11yer-skip-link")).toBeAttached();
   }
@@ -62,6 +64,6 @@ test("axe-core WCAG audit", async ({ page }) => {
     .analyze();
 
   const serious = violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-  if (serious.length > 0) console.log(serious.map((v) => `${v.id}: ${v.description}`));
+  if (serious.length > 0) console.log(serious.map((v) => `${v.id}: ${v.description} (${v.nodes.length} nodes)`));
   expect(serious).toHaveLength(0);
 });

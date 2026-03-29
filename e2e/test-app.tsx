@@ -25,6 +25,7 @@ function TestApp() {
 
           <input name="fname" placeholder="First name" />
 
+          <span>Required Field</span>
           <input required />
 
           <div className="error" id="err-test">
