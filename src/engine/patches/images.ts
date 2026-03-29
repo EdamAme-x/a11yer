@@ -154,14 +154,17 @@ export function patchSvgInInteractive(root: Element, _ctx: PatchContext): void {
       // Parent has text — SVG is decorative
       svg.setAttribute("aria-hidden", "true");
       markPatched(svg, "svg-hidden");
+    } else if (isAlreadyLabelled(parent)) {
+      // Icon-only but parent already has accessible name (aria-label, title, etc.)
+      // SVG is decorative in this context
+      svg.setAttribute("aria-hidden", "true");
+      markPatched(svg, "svg-hidden");
     } else {
-      // Icon-only — try to derive aria-label for the parent
-      if (!isAlreadyLabelled(parent)) {
-        const label = deriveIconLabel(parent);
-        if (label) {
-          parent.setAttribute("aria-label", label);
-          svg.setAttribute("aria-hidden", "true");
-        }
+      // Icon-only, no existing label — try to derive one
+      const label = deriveIconLabel(parent);
+      if (label) {
+        parent.setAttribute("aria-label", label);
+        svg.setAttribute("aria-hidden", "true");
       }
       markPatched(svg, "svg-hidden");
     }
