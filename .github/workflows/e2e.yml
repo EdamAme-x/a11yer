@@ -9,7 +9,11 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
 
     steps:
       - uses: actions/checkout@v4
@@ -30,23 +34,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ steps.pw-version.outputs.version }}-${{ runner.os }}
+          key: pw-${{ matrix.browser }}-${{ steps.pw-version.outputs.version }}
 
-      - name: Install Playwright browsers
+      - name: Install Playwright browser
         if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: bunx playwright install --with-deps chromium firefox webkit
+        run: bunx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Install Playwright system deps (cached)
         if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: bunx playwright install-deps chromium firefox webkit
+        run: bunx playwright install-deps ${{ matrix.browser }}
 
-      - name: Run E2E tests (all browsers + mobile)
-        run: bun run test:e2e
+      - name: Run E2E (${{ matrix.browser }})
+        run: bunx playwright test --project=${{ matrix.browser }}
 
-      - name: Upload test results
+      - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: pw-report-${{ matrix.browser }}
           path: playwright-report/
           retention-days: 7

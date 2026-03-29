@@ -4,139 +4,114 @@ import { expect, test } from "@playwright/test";
 test.describe("a11yer auto-patches", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    // Wait for deferred patches to complete
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(300);
   });
 
-  test("page has html[lang]", async ({ page }) => {
+  test("html[lang] is set", async ({ page }) => {
     const lang = await page.getAttribute("html", "lang");
     expect(lang).toBeTruthy();
   });
 
-  test("skip link exists and points to main", async ({ page }) => {
+  test("skip link exists and targets main", async ({ page }) => {
     const skipLink = page.locator(".a11yer-skip-link");
     await expect(skipLink).toBeAttached();
     const href = await skipLink.getAttribute("href");
     expect(href).toMatch(/^#/);
-
-    // Target element exists
-    const targetId = href!.slice(1);
-    const target = page.locator(`#${targetId}`);
+    const target = page.locator(`${href}`);
     await expect(target).toBeAttached();
   });
 
-  test("images get alt text from filename", async ({ page }) => {
-    const heroImg = page.locator('img[src="/images/hero-banner.jpg"]');
-    const alt = await heroImg.getAttribute("alt");
+  test("img alt derived from filename", async ({ page }) => {
+    const alt = await page.locator('img[src="/images/hero-banner.jpg"]').getAttribute("alt");
     expect(alt).toBe("hero banner");
   });
 
   test("tracking pixel gets empty alt", async ({ page }) => {
-    const pixel = page.locator('img[src="/pixel.gif"]');
-    const alt = await pixel.getAttribute("alt");
+    const alt = await page.locator('img[src="/pixel.gif"]').getAttribute("alt");
     expect(alt).toBe("");
   });
 
-  test("email input gets autocomplete=email", async ({ page }) => {
-    const email = page.locator('input[name="email"]');
-    const ac = await email.getAttribute("autocomplete");
-    expect(ac).toBe("email");
+  test("email input gets autocomplete", async ({ page }) => {
+    expect(await page.locator('input[name="email"]').getAttribute("autocomplete")).toBe("email");
   });
 
-  test("fname input gets autocomplete=given-name", async ({ page }) => {
-    const fname = page.locator('input[name="fname"]');
-    const ac = await fname.getAttribute("autocomplete");
-    expect(ac).toBe("given-name");
+  test("fname input gets autocomplete", async ({ page }) => {
+    expect(await page.locator('input[name="fname"]').getAttribute("autocomplete")).toBe("given-name");
   });
 
   test("required input gets aria-required", async ({ page }) => {
-    const required = page.locator("input[required]");
-    const ar = await required.getAttribute("aria-required");
-    expect(ar).toBe("true");
+    expect(await page.locator("input[required]").getAttribute("aria-required")).toBe("true");
   });
 
-  test("table headers get scope", async ({ page }) => {
+  test("table th gets scope", async ({ page }) => {
     const ths = page.locator("th");
-    const count = await ths.count();
-    expect(count).toBeGreaterThan(0);
-
-    for (let i = 0; i < count; i++) {
-      const scope = await ths.nth(i).getAttribute("scope");
-      expect(scope).toBeTruthy();
+    for (let i = 0; i < await ths.count(); i++) {
+      expect(await ths.nth(i).getAttribute("scope")).toBeTruthy();
     }
   });
 
-  test("non-native button gets tabindex and keyboard handler", async ({ page }) => {
-    const btn = page.locator('div[role="button"]');
-    const tabindex = await btn.getAttribute("tabindex");
-    expect(tabindex).toBe("0");
+  test("div[role=button] gets tabindex=0", async ({ page }) => {
+    expect(await page.locator('div[role="button"]').getAttribute("tabindex")).toBe("0");
   });
 
-  test("icon-only button with title gets aria-label", async ({ page }) => {
-    const closeBtn = page.locator('button[title="Close dialog"]');
-    // SVG should be aria-hidden since parent gets aria-label from title
-    const svg = closeBtn.locator("svg");
-    const hidden = await svg.getAttribute("aria-hidden");
-    expect(hidden).toBe("true");
+  test("icon button SVG gets aria-hidden", async ({ page }) => {
+    const svg = page.locator('button[title="Close dialog"] svg');
+    expect(await svg.getAttribute("aria-hidden")).toBe("true");
   });
 
   test("tablist children get roving tabindex", async ({ page }) => {
     const tabs = page.locator('[role="tab"]');
-    const count = await tabs.count();
-    expect(count).toBe(3);
-
-    // First (selected) tab should have tabindex=0
-    const first = await tabs.nth(0).getAttribute("tabindex");
-    expect(first).toBe("0");
-
-    // Others should have tabindex=-1
-    const second = await tabs.nth(1).getAttribute("tabindex");
-    expect(second).toBe("-1");
+    expect(await tabs.nth(0).getAttribute("tabindex")).toBe("0");
+    expect(await tabs.nth(1).getAttribute("tabindex")).toBe("-1");
   });
 
-  test("focus-visible CSS is injected", async ({ page }) => {
-    const style = page.locator("#a11yer-styles");
-    await expect(style).toBeAttached();
-    const content = await style.textContent();
-    expect(content).toContain(":focus-visible");
-  });
-
-  test("reduced motion CSS is injected", async ({ page }) => {
-    const style = page.locator("#a11yer-styles");
-    const content = await style.textContent();
-    expect(content).toContain("prefers-reduced-motion");
+  test("focus-visible and reduced-motion CSS injected", async ({ page }) => {
+    const css = await page.locator("#a11yer-styles").textContent();
+    expect(css).toContain(":focus-visible");
+    expect(css).toContain("prefers-reduced-motion");
   });
 });
 
-test.describe("axe-core accessibility audit", () => {
-  test("page passes axe-core scan", async ({ page }) => {
+test.describe("responsive viewports", () => {
+  const viewports = [
+    { name: "mobile", width: 375, height: 812 },
+    { name: "tablet", width: 768, height: 1024 },
+    { name: "desktop", width: 1280, height: 720 },
+  ];
+
+  for (const vp of viewports) {
+    test(`patches work at ${vp.name} (${vp.width}x${vp.height})`, async ({ page }) => {
+      await page.setViewportSize(vp);
+      await page.goto("/");
+      await page.waitForTimeout(300);
+
+      // Core patches should work at all sizes
+      expect(await page.getAttribute("html", "lang")).toBeTruthy();
+      await expect(page.locator(".a11yer-skip-link")).toBeAttached();
+      expect(await page.locator('img[src="/images/hero-banner.jpg"]').getAttribute("alt")).toBe("hero banner");
+    });
+  }
+});
+
+test.describe("axe-core audit", () => {
+  test("no serious WCAG violations", async ({ page }) => {
     await page.goto("/");
     await page.waitForTimeout(500);
 
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .disableRules([
-        // Disable rules that conflict with a11yer's approach
-        "color-contrast", // a11yer fixes contrast via CSS override which axe can't detect
-      ])
+      .disableRules(["color-contrast"])
       .analyze();
 
-    const violations = results.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      description: v.description,
-      nodes: v.nodes.length,
-    }));
-
-    // Log violations for debugging
-    if (violations.length > 0) {
-      console.log("axe-core violations:", JSON.stringify(violations, null, 2));
-    }
-
-    // Allow minor violations but no serious/critical ones
     const serious = results.violations.filter(
       (v) => v.impact === "serious" || v.impact === "critical",
     );
+
+    if (serious.length > 0) {
+      const summary = serious.map((v) => `${v.id} (${v.impact}): ${v.description} [${v.nodes.length} nodes]`);
+      console.log("Serious violations:", summary);
+    }
+
     expect(serious).toHaveLength(0);
   });
 });

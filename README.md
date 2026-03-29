@@ -103,16 +103,13 @@ No double-injection. No conflicts.
 
 ## Browser support
 
-Tested on every push via Playwright E2E + axe-core in CI:
+Tested on every push via Playwright E2E + axe-core in CI (3 parallel jobs):
 
-| Browser | Device |
-|---------|--------|
-| Chrome | Desktop |
-| Firefox | Desktop |
-| Safari (WebKit) | Desktop |
-| Chrome | Pixel 7 (mobile) |
-| Safari (WebKit) | iPhone 15 (mobile) |
-| Safari (WebKit) | iPad (tablet) |
+| Engine | Viewports tested |
+|--------|-----------------|
+| Chromium (Chrome) | Desktop 1280px, Tablet 768px, Mobile 375px |
+| Firefox | Desktop 1280px, Tablet 768px, Mobile 375px |
+| WebKit (Safari) | Desktop 1280px, Tablet 768px, Mobile 375px |
 
 ## Testing
 
