@@ -5,13 +5,12 @@ export default defineConfig({
   timeout: 15000,
   retries: 1,
   fullyParallel: true,
-  workers: "75%",
+  workers: 4,
   reporter: [["html", { open: "never" }]],
   use: {
     baseURL: "http://localhost:3999",
   },
   projects: [
-    // 3 browser engines — viewports tested within each spec
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },

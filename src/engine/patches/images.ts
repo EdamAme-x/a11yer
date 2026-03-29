@@ -3,7 +3,7 @@ import { getTextContent, isAlreadyLabelled, isPatched, markPatched } from "../..
 
 /**
  * Extract a human-readable label from an image src URL.
- * "/images/hero-banner.jpg" → "hero banner"
+ * "/images/hero-banner.jpg" → "Hero Banner"
  * "https://cdn.example.com/product_photo_01.png" → "product photo 01"
  * Returns null if the filename is not meaningful (hash, uuid, etc.)
  */
@@ -24,13 +24,14 @@ function altFromSrc(src: string): string | null {
     // Skip UUID-like filenames
     if (/^[a-f0-9-]{32,}$/i.test(name)) return null;
 
-    // Convert separators to spaces, clean up
+    // Convert separators to spaces, Title Case
     const label = name
       .replace(/[-_]+/g, " ")
       .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
       .replace(/\s+/g, " ")
       .trim()
-      .toLowerCase();
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase()); // Title Case
 
     if (label.length < 2) return null;
     return label;

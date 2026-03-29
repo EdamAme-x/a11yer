@@ -84,4 +84,8 @@ function TestApp() {
 }
 
 const root = createRoot(document.getElementById("root")!);
-root.render(<TestApp />);
+root.render(
+  <React.StrictMode>
+    <TestApp />
+  </React.StrictMode>,
+);
