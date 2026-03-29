@@ -42,7 +42,7 @@ test("tables + keyboard + composites + CSS", async ({ page }) => {
 
   const css = await page.locator("#a11yer-styles").textContent();
   expect(css).toContain(":focus-visible");
-  expect(css).toContain("prefers-reduced-motion");
+  expect(css).toContain("a11yer-sr-only");
 });
 
 test("responsive viewports", async ({ page }) => {
