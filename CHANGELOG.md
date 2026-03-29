@@ -8,6 +8,18 @@
 ### Fixes
 - fix: CI peer deps + Playwright cache
 
+### Other
+- perf: parallelize E2E — 3 browser jobs, fullyParallel, viewport tests
+
+
+## Unreleased (2026-03-30)
+
+### Features
+- feat: initial release of a11yer
+
+### Fixes
+- fix: CI peer deps + Playwright cache
+
 
 ## Unreleased (2026-03-30)
 
