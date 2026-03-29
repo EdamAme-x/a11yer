@@ -1,5 +1,2 @@
-[install]
-peer = false
-
 [install.lockfile]
 save = true

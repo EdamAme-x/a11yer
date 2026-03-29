@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased (2026-03-30)
+
+### Features
+- feat: initial release of a11yer
+
+
 ## 0.1.0 (2026-03-30)
 
 Initial release.

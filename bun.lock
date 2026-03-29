@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@styler/react",
+      "name": "a11yer",
       "devDependencies": {
         "@axe-core/playwright": "^4.11.1",
         "@eslint/js": "^10.0.1",
