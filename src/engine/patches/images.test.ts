@@ -10,9 +10,29 @@ afterEach(() => {
 });
 
 describe("patchImgAlt", () => {
-  it("injects alt='' on img missing alt", () => {
+  it("derives alt from filename for standalone images", () => {
     const img = document.createElement("img");
-    img.src = "test.png";
+    img.src = "/images/hero-banner.jpg";
+    document.body.appendChild(img);
+
+    patchImgAlt(document.body, ctx);
+    expect(img.getAttribute("alt")).toBe("Hero Banner");
+  });
+
+  it("injects alt='' on tracking pixel (width=1 height=1)", () => {
+    const img = document.createElement("img");
+    img.src = "/pixel.gif";
+    img.setAttribute("width", "1");
+    img.setAttribute("height", "1");
+    document.body.appendChild(img);
+
+    patchImgAlt(document.body, ctx);
+    expect(img.getAttribute("alt")).toBe("");
+  });
+
+  it("injects alt='' on hash-filename images (no meaningful name)", () => {
+    const img = document.createElement("img");
+    img.src = "/assets/a1b2c3d4e5f6a7b8.png";
     document.body.appendChild(img);
 
     patchImgAlt(document.body, ctx);
