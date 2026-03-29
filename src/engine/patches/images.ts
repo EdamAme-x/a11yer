@@ -24,9 +24,10 @@ function altFromSrc(src: string): string | null {
     // Skip UUID-like filenames
     if (/^[a-f0-9-]{32,}$/i.test(name)) return null;
 
-    // Convert separators to spaces, Title Case
+    // Convert all separator characters to spaces, then Title Case
+    // Covers: hyphen, underscore, dot, full-width hyphen(ー), en-dash(–), em-dash(—), tilde, plus
     const label = name
-      .replace(/[-_]+/g, " ")
+      .replace(/[-_.\u30FC\u2013\u2014~+]+/g, " ")
       .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
       .replace(/\s+/g, " ")
       .trim()
