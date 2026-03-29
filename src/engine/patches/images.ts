@@ -82,6 +82,11 @@ function isLikelyDecorative(img: Element): boolean {
   const role = img.getAttribute("role");
   if (role === "presentation" || role === "none") return true;
 
+  // If we can derive a meaningful name from the filename, it's likely informative
+  const src = img.getAttribute("src") || "";
+  if (altFromSrc(src)) return false;
+
+  // No filename hint + not in interactive context → assume decorative
   return !interactive;
 }
 
