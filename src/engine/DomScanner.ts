@@ -44,10 +44,7 @@ function patchHistoryOnce(): void {
   });
 }
 
-/**
- * Schedule a callback via requestIdleCallback with a timeout fallback.
- */
-function scheduleIdle(fn: () => void, timeoutMs = 50): void {
+function scheduleIdle(fn: () => void, timeoutMs = 100): void {
   if (typeof requestIdleCallback !== "undefined") {
     requestIdleCallback(fn, { timeout: timeoutMs });
   } else {
@@ -82,16 +79,11 @@ export class DomScanner {
     if (this.started) return;
     this.started = true;
 
-    // Phase 1: Critical patches — synchronous, minimal work
-    this.runDocumentPatches();
-    this.runCriticalPatches(this.root);
+    // Initial scan: ALL patches run synchronously.
+    // This ensures the page is accessible from the very first paint.
+    this.runAllPatches(this.root);
 
-    // Phase 2: Deferred patches — split into idle callbacks
-    const root = this.root;
-    const ctx = this.getContext();
-    this.scheduleDeferredPatches(root, ctx);
-
-    // Start observing
+    // Start observing for future mutations
     this.observer = new MutationObserver(() => {
       this.hasPendingMutations = true;
       this.scheduleFlush();
@@ -108,7 +100,7 @@ export class DomScanner {
       ],
     });
 
-    // SPA route change detection
+    // SPA route changes
     if (this.config.announceSpaNavigation) {
       patchHistoryOnce();
       const handleRouteChange = () => {
@@ -140,87 +132,78 @@ export class DomScanner {
 
   update(config: A11yConfig): void {
     this.config = config;
-    if (this.root) {
-      this.runCriticalPatches(this.root);
-      this.scheduleDeferredPatches(this.root, this.getContext());
-    }
+    if (this.root) this.runAllPatches(this.root);
   }
 
   rescan(): void {
-    if (!this.root) return;
-    this.runDocumentPatches();
-    this.runCriticalPatches(this.root);
-    this.scheduleDeferredPatches(this.root, this.getContext());
+    if (this.root) this.runAllPatches(this.root);
   }
 
   private getContext(): PatchContext {
     return { config: this.config };
   }
 
-  private runDocumentPatches(): void {
+  /**
+   * Run every patch synchronously. Used for:
+   * - Initial scan (must complete before first paint)
+   * - rescan() after route change
+   * - update() on config change
+   */
+  private runAllPatches(root: Element): void {
     const ctx = this.getContext();
+
+    // Document-level
     patchHtmlLang(ctx);
     patchDocumentTitle(ctx);
-  }
 
-  /**
-   * Critical patches — run synchronously on initial render.
-   * These are fast and affect visible a11y immediately.
-   */
-  private runCriticalPatches(root: Element): void {
-    const ctx = this.getContext();
+    // Structural
     patchSkipLinkTarget(root);
+
+    // Images
     patchImgAlt(root, ctx);
     patchSvgInInteractive(root, ctx);
+
+    // Tables
+    patchTableHeaders(root, ctx);
+
+    // Forms
     patchAriaRequired(root, ctx);
-  }
+    patchInputLabels(root, ctx);
+    patchAriaInvalid(root, ctx);
+    cleanAriaInvalid(root);
+    patchAutocomplete(root, ctx);
 
-  /**
-   * Deferred patches — split across multiple idle callbacks
-   * to avoid blocking the main thread on large DOMs.
-   */
-  private scheduleDeferredPatches(root: Element, ctx: PatchContext): void {
-    // Batch 1: Forms
-    scheduleIdle(() => {
-      if (!this.started) return;
-      patchInputLabels(root, ctx);
-      patchAriaInvalid(root, ctx);
-      cleanAriaInvalid(root);
-      patchAutocomplete(root, ctx);
-    });
+    // Keyboard
+    patchKeyboardHandlers(root, ctx);
+    cleanKeyboardHandlers(root);
 
-    // Batch 2: Keyboard + tables
-    scheduleIdle(() => {
-      if (!this.started) return;
-      patchKeyboardHandlers(root, ctx);
-      cleanKeyboardHandlers(root);
-      patchTableHeaders(root, ctx);
-    });
+    // Composites
+    patchCompositeWidgets(root, ctx);
+    cleanCompositeWidgets(root);
 
-    // Batch 3: Composite widgets + dialogs
-    scheduleIdle(() => {
-      if (!this.started) return;
-      patchCompositeWidgets(root, ctx);
-      cleanCompositeWidgets(root);
-      patchDialogFocusTrap(root, ctx);
-      cleanDialogFocusTraps(root);
-      patchHoverContent(root, ctx);
-    });
+    // Dialogs
+    patchDialogFocusTrap(root, ctx);
+    cleanDialogFocusTraps(root);
 
-    // Batch 4: Heavy — contrast, shadow DOM, iframes
-    scheduleIdle(() => {
-      if (!this.started) return;
-      if (ctx.config.autoContrastFix) {
+    // Hover content
+    patchHoverContent(root, ctx);
+
+    // Contrast — the only deferred patch (getComputedStyle is expensive)
+    if (ctx.config.autoContrastFix) {
+      scheduleIdle(() => {
+        if (!this.started) return;
         fixContrastViolations(root, ctx);
-      }
-      this.scanShadowRoots(root);
-      this.scanIframes(root);
-    }, 200);
+      });
+    }
+
+    // Shadow DOM + iframes
+    this.scanShadowRoots(root);
+    this.scanIframes(root);
   }
 
   /**
-   * Mutation flush — runs all patches (critical sync + deferred).
-   * After initial render, mutations are typically small so full scan is fast.
+   * Mutation flush — debounced to 16ms.
+   * Re-runs all patches from root. isPatched() guards prevent redundant work.
    */
   private scheduleFlush(): void {
     if (this.flushTimer !== null) return;
@@ -229,33 +212,7 @@ export class DomScanner {
       this.flushTimer = null;
       if (!this.hasPendingMutations || !this.root) return;
       this.hasPendingMutations = false;
-
-      const root = this.root;
-      const ctx = this.getContext();
-
-      // On mutation flushes, run everything but still defer heavy work
-      this.runCriticalPatches(root);
-      scheduleIdle(() => {
-        if (!this.started) return;
-        patchInputLabels(root, ctx);
-        patchAriaInvalid(root, ctx);
-        cleanAriaInvalid(root);
-        patchAutocomplete(root, ctx);
-        patchKeyboardHandlers(root, ctx);
-        cleanKeyboardHandlers(root);
-        patchTableHeaders(root, ctx);
-        patchCompositeWidgets(root, ctx);
-        cleanCompositeWidgets(root);
-        patchDialogFocusTrap(root, ctx);
-        cleanDialogFocusTraps(root);
-        patchHoverContent(root, ctx);
-      });
-      scheduleIdle(() => {
-        if (!this.started) return;
-        if (ctx.config.autoContrastFix) fixContrastViolations(root, ctx);
-        this.scanShadowRoots(root);
-        this.scanIframes(root);
-      }, 200);
+      this.runAllPatches(this.root);
     }, 16);
   }
 
@@ -264,19 +221,15 @@ export class DomScanner {
     for (const el of allElements) {
       if (el.shadowRoot && !isPatched(el, "shadow-scanned")) {
         markPatched(el, "shadow-scanned");
-        const ctx = this.getContext();
-        this.runCriticalPatches(el.shadowRoot as unknown as Element);
-        this.scheduleDeferredPatches(el.shadowRoot as unknown as Element, ctx);
+        this.runAllPatches(el.shadowRoot as unknown as Element);
 
-        const shadowObserver = new MutationObserver(() =>
-          this.scheduleFlush(),
-        );
-        shadowObserver.observe(el.shadowRoot, {
+        const obs = new MutationObserver(() => this.scheduleFlush());
+        obs.observe(el.shadowRoot, {
           childList: true,
           subtree: true,
           attributes: true,
         });
-        this.shadowObservers.add(shadowObserver);
+        this.shadowObservers.add(obs);
       }
     }
   }
@@ -289,9 +242,7 @@ export class DomScanner {
         const doc = iframe.contentDocument;
         if (!doc?.body) continue;
         markPatched(iframe, "iframe-scanned");
-        const ctx = this.getContext();
-        this.runCriticalPatches(doc.body);
-        this.scheduleDeferredPatches(doc.body, ctx);
+        this.runAllPatches(doc.body);
       } catch {
         markPatched(iframe, "iframe-scanned");
       }

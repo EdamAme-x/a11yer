@@ -1,9 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-test("structural + images + forms", async ({ page }) => {
+// Wait for a11yer to finish patching by checking for its style element
+async function waitForA11yer(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.waitForTimeout(400);
+  await page.waitForSelector("#a11yer-styles", { timeout: 5000 });
+  // Also wait for deferred patches (skip link target, etc.)
+  await page.waitForSelector("[data-a11yer-skip-target]", { timeout: 5000 });
+}
+
+test("structural + images + forms", async ({ page }) => {
+  await waitForA11yer(page);
 
   expect(await page.getAttribute("html", "lang")).toBeTruthy();
 
@@ -20,8 +27,7 @@ test("structural + images + forms", async ({ page }) => {
 });
 
 test("tables + keyboard + composites + CSS", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForTimeout(400);
+  await waitForA11yer(page);
 
   const ths = page.locator("th");
   for (let i = 0; i < await ths.count(); i++) {
@@ -42,16 +48,14 @@ test("tables + keyboard + composites + CSS", async ({ page }) => {
 test("responsive viewports", async ({ page }) => {
   for (const [w, h] of [[375, 812], [768, 1024], [1280, 720]]) {
     await page.setViewportSize({ width: w, height: h });
-    await page.goto("/");
-    await page.waitForTimeout(200);
+    await waitForA11yer(page);
     expect(await page.getAttribute("html", "lang")).toBeTruthy();
     await expect(page.locator(".a11yer-skip-link")).toBeAttached();
   }
 });
 
 test("axe-core WCAG audit", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForTimeout(500);
+  await waitForA11yer(page);
 
   const { violations } = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
