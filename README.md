@@ -132,6 +132,12 @@ export { A11yer } from "a11yer";
 export type { A11yerProps, A11yerConfig } from "a11yer";
 ```
 
+## Disclaimer
+
+a11yer automatically fixes many common accessibility issues, but it does not guarantee full WCAG 2.2 compliance. Automated tools can address approximately 30-40% of WCAG success criteria. The remaining criteria require human judgment, manual testing with assistive technology, and content-level decisions (meaningful alt text, logical heading structure, comprehensible error messages, etc.).
+
+**Do not rely on a11yer as your sole accessibility solution.** Use it as a safety net alongside manual a11y audits, screen reader testing, and accessibility-focused design practices.
+
 ## License
 
 MIT

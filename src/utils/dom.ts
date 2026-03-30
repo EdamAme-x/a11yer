@@ -152,6 +152,24 @@ export function isManagedByLibrary(el: Element): boolean {
   if (el.hasAttribute("data-scope") && el.hasAttribute("data-part"))
     return true;
 
+  // Chakra UI: class names containing chakra-
+  if (/\bchakra-/.test(className)) return true;
+
+  // Mantine: class names starting with mantine-
+  if (/\bmantine-/.test(className)) return true;
+
+  // Ant Design: class names starting with ant-
+  if (/\bant-/.test(className)) return true;
+
+  // shadcn/ui (uses Radix primitives — already caught by data-radix-* above)
+  // But also check for data-slot which shadcn/ui v2 uses
+  if (el.hasAttribute("data-slot")) return true;
+
+  // NextUI: data-nextui-*
+  for (const attr of el.attributes) {
+    if (attr.name.startsWith("data-nextui")) return true;
+  }
+
   // Check if a React-managed library has attached internal fiber props
   // indicating it handles its own keyboard events
   const hasInternalHandler = Object.keys(el).some(
@@ -177,10 +195,13 @@ export function isManagedByLibrary(el: Element): boolean {
   return false;
 }
 
-/** Generate a unique ID for an element if it doesn't have one */
+let idCounter = 0;
+
+/** Generate a unique ID for an element if it doesn't have one.
+ *  Uses a deterministic counter (not Math.random) for security and SSR consistency. */
 export function ensureId(el: Element, prefix: string): string {
   if (el.id) return el.id;
-  const id = `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
+  const id = `${prefix}-${++idCounter}`;
   el.id = id;
   return id;
 }

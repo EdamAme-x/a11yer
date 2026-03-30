@@ -31,3 +31,8 @@ coverage
 e2e/.build
 test-results
 playwright-report
+
+# Docs
+docs/node_modules
+docs/.next
+docs/out
