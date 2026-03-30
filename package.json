@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "React library for automatic accessibility (a11y) adjustment — contrast checking, ARIA attributes, and focus management",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EdamAme-x/a11yer"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
