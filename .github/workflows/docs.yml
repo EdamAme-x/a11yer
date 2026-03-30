@@ -29,7 +29,7 @@ jobs:
       - name: Build a11yer
         run: bun run build
 
-      - name: Install docs deps
+      - name: Install docs deps (links local a11yer)
         working-directory: docs
         run: bun install
 
