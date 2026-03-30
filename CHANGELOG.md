@@ -8,6 +8,31 @@
 - feat: initial release of a11yer
 
 ### Fixes
+- fix: docs uses file:.. link for a11yer, workspace approach removed
+- fix: E2E don't assert prefers-reduced-motion (system dependent)
+- fix: icon-only SVG hidden when parent already labelled (title attr)
+- fix: images test for new alt derivation, hash filename test
+- fix: isLikelyDecorative checks filename before defaulting to decorative
+- fix: tracking pixel detection, test app labels, E2E wait strategy
+- fix: serve bundle as separate file instead of inline
+- fix: waitForSelector state=attached for style element
+- fix: initial scan fully sync, E2E waits for DOM not timeout
+- fix: E2E workers=4, StrictMode, alt Title Case, batched tests
+- fix: CI peer deps + Playwright cache
+
+### Other
+- perf: batch E2E tests — 4 parallel tests instead of 17 serial
+- perf: parallelize E2E — 3 browser jobs, fullyParallel, viewport tests
+
+
+## Unreleased (2026-03-30)
+
+### Features
+- feat: docs site, benchmark, security, library detection
+- feat: alt text supports all separator types
+- feat: initial release of a11yer
+
+### Fixes
 - fix: E2E don't assert prefers-reduced-motion (system dependent)
 - fix: icon-only SVG hidden when parent already labelled (title attr)
 - fix: images test for new alt derivation, hash filename test
