@@ -2,6 +2,15 @@
 
 ## Unreleased (2026-03-30)
 
+### Features
+- feat: docs shiki highlighting, badges, auto release, gradient contrast
+
+### Diff
+` 1 file changed, 17 insertions(+), 3 deletions(-)`
+
+
+## Unreleased (2026-03-30)
+
 ### Fixes
 - fix: add repository field for npm provenance
 

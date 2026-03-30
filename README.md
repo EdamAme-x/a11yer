@@ -12,9 +12,7 @@ No hooks to call. No props to spread. No components to replace. Just wrap and sh
 ## Install
 
 ```bash
-bun add a11yer
-# or
-npm install a11yer
+bun add a11yer    # npm i a11yer / pnpm add a11yer / yarn add a11yer
 ```
 
 ## Usage

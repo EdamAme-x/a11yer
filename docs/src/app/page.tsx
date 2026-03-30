@@ -1,7 +1,7 @@
 import { CodeBlock } from "./code-block";
 import { DemoSection } from "./demo-section";
 
-const INSTALL_CODE = `bun add a11yer`;
+const INSTALL_CODE = `bun add a11yer    # npm i a11yer / pnpm add a11yer / yarn add a11yer`;
 
 const USAGE_CODE = `import { A11yer } from "a11yer";
 
