@@ -19,8 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "a11yer": ["../dist/index.d.ts"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [

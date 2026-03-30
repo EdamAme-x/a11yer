@@ -4,12 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --no-turbopack",
+    "build": "cp -r ../dist ./a11yer-dist && next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "a11yer": "file:..",
     "next": "16.2.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
