@@ -2,6 +2,18 @@
 
 ## Unreleased (2026-03-30)
 
+### Fixes
+- fix: add repository field for npm provenance
+
+
+## Unreleased (2026-03-30)
+
+### Fixes
+- fix: add repository field for npm provenance
+
+
+## Unreleased (2026-03-30)
+
 ### Features
 - feat: docs site, benchmark, security, library detection
 - feat: alt text supports all separator types

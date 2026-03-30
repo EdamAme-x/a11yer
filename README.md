@@ -1,5 +1,10 @@
 # a11yer
 
+[![npm](https://img.shields.io/npm/v/a11yer)](https://www.npmjs.com/package/a11yer)
+[![CI](https://github.com/EdamAme-x/a11yer/actions/workflows/ci.yml/badge.svg)](https://github.com/EdamAme-x/a11yer/actions/workflows/ci.yml)
+[![E2E](https://github.com/EdamAme-x/a11yer/actions/workflows/e2e.yml/badge.svg)](https://github.com/EdamAme-x/a11yer/actions/workflows/e2e.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 Wrap your React app in `<A11yer>` and accessibility is automatically handled.
 
 No hooks to call. No props to spread. No components to replace. Just wrap and ship.

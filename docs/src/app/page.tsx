@@ -1,6 +1,34 @@
+import { CodeBlock } from "./code-block";
 import { DemoSection } from "./demo-section";
 
-// This is a Server Component — all static content is SSR'd.
+const INSTALL_CODE = `bun add a11yer`;
+
+const USAGE_CODE = `import { A11yer } from "a11yer";
+
+function App() {
+  return (
+    <A11yer>
+      <YourApp />
+    </A11yer>
+  );
+}`;
+
+const CONFIG_CODE = `<A11yer
+  config={{
+    a11y: {
+      minContrastRatio: 7,        // WCAG AAA (default: 4.5)
+      focusVisible: true,          // default: true
+      reducedMotion: "auto",       // "auto" | "always" | "never"
+      autoImgAlt: true,            // default: true
+      announceSpaNavigation: true, // default: true
+      autoContrastFix: true,       // default: true
+    },
+  }}
+>
+  <App />
+</A11yer>`;
+
+// Server Component — all static content is SSR'd with shiki highlighting at build time.
 export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950">
@@ -27,12 +55,10 @@ export default function Home() {
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-16">
-        {/* Hero — SSR'd */}
+        {/* Hero */}
         <section className="mb-20">
           <h2 className="text-5xl font-bold text-zinc-900 dark:text-white mb-6 leading-tight">
-            Automatic Accessibility
-            <br />
-            for React
+            Automatic Accessibility for React
           </h2>
           <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-8 max-w-2xl">
             Wrap your app in{" "}
@@ -43,26 +69,14 @@ export default function Home() {
             spread, no components to replace.
           </p>
 
-          <pre className="bg-zinc-950 text-green-400 rounded-lg p-6 text-sm font-mono overflow-x-auto mb-8">
-            <code>{`import { A11yer } from "a11yer";
+          <CodeBlock code={USAGE_CODE} lang="tsx" />
 
-function App() {
-  return (
-    <A11yer>
-      <YourApp />
-    </A11yer>
-  );
-}`}</code>
-          </pre>
-
-          <div className="flex gap-4">
-            <code className="bg-zinc-100 dark:bg-zinc-800 px-4 py-2 rounded-lg text-sm font-mono text-zinc-700 dark:text-zinc-300">
-              bun add a11yer
-            </code>
+          <div className="mt-6">
+            <CodeBlock code={INSTALL_CODE} lang="bash" />
           </div>
         </section>
 
-        {/* What it does — SSR'd */}
+        {/* What it does */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">
             What it does
@@ -71,7 +85,7 @@ function App() {
             {[
               {
                 title: "Images",
-                desc: "Alt text from filename, decorative detection, SVG aria-hidden",
+                desc: "Alt text from filename (Title Case), decorative detection, SVG aria-hidden",
               },
               {
                 title: "Forms",
@@ -79,7 +93,7 @@ function App() {
               },
               {
                 title: "Keyboard",
-                desc: "Enter/Space on div[role=button], roving tabindex on tabs/menus/toolbars",
+                desc: "Enter/Space on div[role=button], roving tabindex for tabs/menus/toolbars",
               },
               {
                 title: "Focus",
@@ -95,11 +109,11 @@ function App() {
               },
               {
                 title: "Tables",
-                desc: "Auto scope=col/row on th elements",
+                desc: "scope=col/row on th elements",
               },
               {
                 title: "Motion",
-                desc: "prefers-reduced-motion CSS injection, configurable",
+                desc: "prefers-reduced-motion CSS injection",
               },
             ].map((item) => (
               <div
@@ -117,13 +131,13 @@ function App() {
           </div>
         </section>
 
-        {/* Live Demo — Client Component */}
+        {/* Live Demo */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4">
             Live Demo
           </h2>
           <p className="text-zinc-600 dark:text-zinc-400 mb-8">
-            This page itself is wrapped in{" "}
+            This page is wrapped in{" "}
             <code className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-sm font-mono">
               {"<A11yer>"}
             </code>
@@ -133,30 +147,15 @@ function App() {
           <DemoSection />
         </section>
 
-        {/* Config — SSR'd */}
+        {/* Config */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">
             Configuration
           </h2>
-          <pre className="bg-zinc-950 text-zinc-300 rounded-lg p-6 text-sm font-mono overflow-x-auto">
-            <code>{`<A11yer
-  config={{
-    a11y: {
-      minContrastRatio: 7,        // WCAG AAA (default: 4.5)
-      focusVisible: true,          // default: true
-      reducedMotion: "auto",       // "auto" | "always" | "never"
-      autoImgAlt: true,            // default: true
-      announceSpaNavigation: true, // default: true
-      autoContrastFix: true,       // default: true
-    },
-  }}
->
-  <App />
-</A11yer>`}</code>
-          </pre>
+          <CodeBlock code={CONFIG_CODE} lang="tsx" />
         </section>
 
-        {/* Compatibility — SSR'd */}
+        {/* Compatibility */}
         <section className="mb-20">
           <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">
             Plays nice with others
@@ -188,7 +187,7 @@ function App() {
           </div>
         </section>
 
-        {/* Disclaimer — SSR'd */}
+        {/* Disclaimer */}
         <section className="mb-20 border-l-4 border-amber-400 pl-6 py-2">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             <strong>Disclaimer:</strong> a11yer automatically fixes many common

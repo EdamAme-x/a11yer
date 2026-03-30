@@ -57,13 +57,28 @@ function getEffectiveBackgroundColor(el: Element): string | null {
   while (current) {
     const style = window.getComputedStyle(current);
     const bg = style.backgroundColor;
+    const bgImage = style.backgroundImage;
+
+    // If element has a gradient, try to use the first color stop
+    if (bgImage && bgImage !== "none" && bgImage.includes("gradient")) {
+      const colorMatch = bgImage.match(
+        /(?:rgb|rgba|hsl|hsla|#[0-9a-f]+)\([^)]+\)|#[0-9a-f]{3,8}/i,
+      );
+      if (colorMatch) {
+        const rgb = parseColorToRgb(colorMatch[0]);
+        if (rgb) {
+          layers.push({ rgb, alpha: 1 });
+          break;
+        }
+      }
+    }
 
     if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") {
       const rgb = parseColorToRgb(bg);
       const alpha = parseAlpha(bg);
       if (rgb) {
         layers.push({ rgb, alpha });
-        if (alpha >= 1) break; // Opaque — stop here
+        if (alpha >= 1) break;
       }
     }
     current = current.parentElement;
@@ -71,8 +86,7 @@ function getEffectiveBackgroundColor(el: Element): string | null {
 
   if (layers.length === 0) return "rgb(255, 255, 255)";
 
-  // Blend from back (last = topmost ancestor) to front
-  let result: RGB = { r: 255, g: 255, b: 255 }; // page background
+  let result: RGB = { r: 255, g: 255, b: 255 };
   for (let i = layers.length - 1; i >= 0; i--) {
     result = alphaBlend(layers[i].rgb, layers[i].alpha, result);
   }
