@@ -5,6 +5,21 @@
 ### Features
 - feat: docs shiki highlighting, badges, auto release, gradient contrast
 
+### Fixes
+- fix: alt text strips numeric/hex words, fallback to "Image", self-host demo image
+
+### Other
+- docs: show all package managers in install command
+
+### Diff
+` 3 files changed, 57 insertions(+), 20 deletions(-)`
+
+
+## Unreleased (2026-03-30)
+
+### Features
+- feat: docs shiki highlighting, badges, auto release, gradient contrast
+
 ### Other
 - docs: show all package managers in install command
 
