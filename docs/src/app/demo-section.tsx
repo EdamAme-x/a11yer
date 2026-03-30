@@ -63,11 +63,11 @@ export function DemoSection() {
             Image without alt
           </h3>
           <p className="text-sm text-zinc-500 mb-3">
-            a11yer derives alt from the filename: &quot;Demo Hero Banner&quot;
+            a11yer derives alt from the filename: &quot;Mountain Landscape&quot;
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=400&fit=crop"
+            src="/a11yer/mountain-landscape.jpg"
             className="w-full h-32 object-cover rounded"
           />
         </div>

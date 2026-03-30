@@ -30,13 +30,32 @@ describe("patchImgAlt", () => {
     expect(img.getAttribute("alt")).toBe("");
   });
 
-  it("injects alt='' on hash-filename images (no meaningful name)", () => {
+  it("falls back to 'Image' on hash-filename images", () => {
     const img = document.createElement("img");
     img.src = "/assets/a1b2c3d4e5f6a7b8.png";
     document.body.appendChild(img);
 
     patchImgAlt(document.body, ctx);
-    expect(img.getAttribute("alt")).toBe("");
+    expect(img.getAttribute("alt")).toBe("Image");
+  });
+
+  it("strips numeric/hex-only words from filename", () => {
+    const img = document.createElement("img");
+    img.src = "https://example.com/photo-1506905925346-21bda4d32df4.jpg";
+    document.body.appendChild(img);
+
+    patchImgAlt(document.body, ctx);
+    // "photo" remains, numeric/hex parts stripped → "Photo"
+    expect(img.getAttribute("alt")).toBe("Photo");
+  });
+
+  it("falls back to 'Image' when all words are numeric", () => {
+    const img = document.createElement("img");
+    img.src = "/images/12345-67890.jpg";
+    document.body.appendChild(img);
+
+    patchImgAlt(document.body, ctx);
+    expect(img.getAttribute("alt")).toBe("Image");
   });
 
   it("does not touch img with existing alt", () => {

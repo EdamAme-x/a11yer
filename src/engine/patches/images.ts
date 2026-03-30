@@ -19,20 +19,27 @@ function altFromSrc(src: string): string | null {
 
     if (!name || name.length < 2) return null;
 
-    // Skip hash-like filenames (e.g., "a1b2c3d4e5.png")
+    // Skip pure hash filenames (e.g., "a1b2c3d4e5.png")
     if (/^[a-f0-9]{8,}$/i.test(name)) return null;
     // Skip UUID-like filenames
     if (/^[a-f0-9-]{32,}$/i.test(name)) return null;
 
-    // Convert all separator characters to spaces, then Title Case
-    // Covers: hyphen, underscore, dot, full-width hyphen(ー), en-dash(–), em-dash(—), tilde, plus
-    const label = name
+    // Split by separators
+    const words = name
       .replace(/[-_.\u30FC\u2013\u2014~+]+/g, " ")
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
       .replace(/\s+/g, " ")
       .trim()
+      .split(" ")
+      // Remove words that are purely numeric or hex-like (e.g., "1506905925346", "21bda4d32df4")
+      .filter((w) => !/^[a-f0-9]{4,}$/i.test(w) && !/^\d+$/.test(w));
+
+    if (words.length === 0) return null;
+
+    const label = words
+      .join(" ")
       .toLowerCase()
-      .replace(/\b\w/g, (c) => c.toUpperCase()); // Title Case
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
     if (label.length < 2) return null;
     return label;
@@ -82,12 +89,9 @@ function isLikelyDecorative(img: Element): boolean {
   const role = img.getAttribute("role");
   if (role === "presentation" || role === "none") return true;
 
-  // If we can derive a meaningful name from the filename, it's likely informative
-  const src = img.getAttribute("src") || "";
-  if (altFromSrc(src)) return false;
-
-  // No filename hint + not in interactive context → assume decorative
-  return !interactive;
+  // Not explicitly decorative — treat as informative.
+  // The caller will try to derive alt from filename, or use "Image" as fallback.
+  return false;
 }
 
 /**
@@ -112,9 +116,9 @@ export function patchImgAlt(root: Element, ctx: PatchContext): void {
       if (derived) {
         img.setAttribute("alt", derived);
       } else {
-        // Can't derive — set empty alt + role="img" so SR says "image"
-        img.setAttribute("alt", "");
-        img.setAttribute("role", "img");
+        // Can't derive meaningful text — use "Image" as fallback
+        // so screen readers announce something useful instead of the raw URL
+        img.setAttribute("alt", "Image");
       }
     }
     markPatched(img, "img-alt");
